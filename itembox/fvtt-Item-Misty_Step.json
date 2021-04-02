@@ -1,0 +1,176 @@
+{
+  "name": "Misty Step",
+  "type": "spell",
+  "data": {
+    "description": {
+      "value": "<p>Briefly surrounded by silvery mist, you teleport up to 30 feet to an unoccupied space that you can see.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "PHB pg. 260",
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": null,
+      "type": "self"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "self"
+    },
+    "uses": {
+      "value": 0,
+      "max": 0,
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "util",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": null,
+    "damage": {
+      "parts": [],
+      "versatile": "",
+      "value": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell",
+      "value": ""
+    },
+    "level": 2,
+    "school": "con",
+    "components": {
+      "value": "",
+      "vocal": true,
+      "somatic": false,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": true
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "sort": 700000,
+  "flags": {
+    "itemacro": {
+      "macro": {
+        "_data": {
+          "name": "Misty Step",
+          "type": "script",
+          "scope": "global",
+          "command": "//DAE Macro Execute, Effect Value = \"Macro Name\" @target \nconst lastArg = args[args.length - 1];\nlet tactor;\nif (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;\nelse tactor = game.actors.get(lastArg.actorId);\nconst target = canvas.tokens.get(lastArg.tokenId) || token;\nconst folder01 = \"modules/jb2a_patreon/Library/Generic/Portals/\";\n//anFile is the name of the file used fRedhe animation\nconst anFile = `${folder01}Portal_Vortex_Green_V_400x300.webm`;\nlet anDeg;\nlet ray;\nlet tok;\nconst wait = (delay) => new Promise((resolve) => setTimeout(resolve, delay))\n\n\nif (args[0] === \"on\") {\n\tlet range = MeasuredTemplate.create({\n\t\tt: \"circle\",\n\t\tuser: game.user._id,\n\t\tx: target.x + canvas.grid.size / 2,\n\t\ty: target.y + canvas.grid.size / 2,\n\t\tdirection: 0,\n\t\tdistance: 30,\n\n\t\tborderColor: \"#FF0000\",\n\t\tflags: {\n\t\t\tDAESRD: {\n\t\t\t\tMistyStep: {\n\t\t\t\t\tActorId: tactor.id\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\t//fillColor: \"#FF3366\",\n\t});\n\n\trange.then(result => {\n\t\tlet templateData = {\n\t\t\tt: \"rect\",\n\t\t\tuser: game.user._id,\n\t\t\tdistance: 7.5,\n\t\t\tdirection: 45,\n\t\t\tx: 0,\n\t\t\ty: 0,\n\t\t\tfillColor: game.user.color,\n\t\t\tflags: {\n\t\t\t\tDAESRD: {\n\t\t\t\t\tMistyStep: {\n\t\t\t\t\t\tActorId: tactor.id\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t};\n\n\n\n\t\tHooks.once(\"createMeasuredTemplate\", deleteTemplatesAndMove);\n\n\t\tlet template = new game.dnd5e.canvas.AbilityTemplate(templateData);\n\t\ttemplate.actorSheet = tactor.sheet;\n\t\ttemplate.drawPreview();\n\n\t\tasync function deleteTemplatesAndMove(scene, template) {\n\n\t\t\tlet removeTemplates = canvas.templates.placeables.filter(i => i.data.flags.DAESRD?.MistyStep?.ActorId === tactor.id);\n\n\n\t\t\ttok = target\n\t\t\tif (tok != undefined) {\n\n\t\t\t\tray = new Ray(tok.center, { x: template.x + canvas.grid.size / 2, y: template.y + canvas.grid.size / 2 });\n\t\t\t\t// Determines the angle\n\t\t\t\tanDeg = -(ray.angle * 57.3) - 90;\n\t\t\t\t//console.error(anDeg);\n\n\n\n\t\t\t\tconst data = {\n\t\t\t\t\tfile: anFile,\n\t\t\t\t\tposition: tok.center,\n\t\t\t\t\tanchor: {\n\t\t\t\t\t\tx: .5,\n\t\t\t\t\t\ty: .85\n\t\t\t\t\t},\n\t\t\t\t\tangle: anDeg,\n\t\t\t\t\tspeed: 0,\n\t\t\t\t\tscale: {\n\t\t\t\t\t\tx: .6,\n\t\t\t\t\t\ty: .6\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\t//console.error(\"data 1\");\n\t\t\t\tcanvas.fxmaster.playVideo(data);\n\t\t\t\tgame.socket.emit('module.fxmaster', data);\n\n\t\t\t}\n\n\n\n\n\n\t\t\ttok.update({ \"hidden\": !tok.data.hidden })\n\t\t\tawait target.update({ x: template.x, y: template.y })\n\t\t\tawait wait(700);\n\n\n\t\t\t//console.error(template.x);\n\t\t\t//console.error(template.y);\n\n\t\t\tif (tok != undefined) {\n\n\t\t\t\tanDeg = -(ray.angle * 57.3) - 90;\n\t\t\t\t//console.error(anDeg);\n\n\n\t\t\t\tconst data2 = {\n\t\t\t\t\tfile: anFile,\n\t\t\t\t\tposition: {\n\t\t\t\t\t\tx: template.x + canvas.grid.size / 2,\n\t\t\t\t\t\ty: template.y + canvas.grid.size / 2\n\t\t\t\t\t},\n\t\t\t\t\tanchor: {\n\t\t\t\t\t\tx: .5,\n\t\t\t\t\t\ty: .85\n\t\t\t\t\t},\n\t\t\t\t\tangle: anDeg,\n\t\t\t\t\tspeed: 0,\n\t\t\t\t\tscale: {\n\t\t\t\t\t\tx: -.6,\n\t\t\t\t\t\ty: -.6\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\t//console.error(\"data 2\");\n\t\t\t\tcanvas.fxmaster.playVideo(data2);\n\t\t\t\tgame.socket.emit('module.fxmaster', data2);\n\n\t\t\t}\n\t\t\t\n\t\t\tawait canvas.templates.deleteMany([removeTemplates[0].id, removeTemplates[1].id]);\n\t\t\tawait tactor.deleteEmbeddedEntity(\"ActiveEffect\", lastArg.effectId);\n\t\t\tawait wait(300);\n\t\t\ttok.update({ \"hidden\": !tok.data.hidden })\n\t\t};\n\t});\n\n}",
+          "author": "evQF5Awg3RukIKJQ"
+        },
+        "data": {
+          "name": "Misty Step",
+          "type": "script",
+          "scope": "global",
+          "command": "//DAE Macro Execute, Effect Value = \"Macro Name\" @target \nconst lastArg = args[args.length - 1];\nlet tactor;\nif (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;\nelse tactor = game.actors.get(lastArg.actorId);\nconst target = canvas.tokens.get(lastArg.tokenId) || token;\nconst folder01 = \"modules/jb2a_patreon/Library/Generic/Portals/\";\n//anFile is the name of the file used fRedhe animation\nconst anFile = `${folder01}Portal_Vortex_Green_V_400x300.webm`;\nlet anDeg;\nlet ray;\nlet tok;\nconst wait = (delay) => new Promise((resolve) => setTimeout(resolve, delay))\n\n\nif (args[0] === \"on\") {\n\tlet range = MeasuredTemplate.create({\n\t\tt: \"circle\",\n\t\tuser: game.user._id,\n\t\tx: target.x + canvas.grid.size / 2,\n\t\ty: target.y + canvas.grid.size / 2,\n\t\tdirection: 0,\n\t\tdistance: 30,\n\n\t\tborderColor: \"#FF0000\",\n\t\tflags: {\n\t\t\tDAESRD: {\n\t\t\t\tMistyStep: {\n\t\t\t\t\tActorId: tactor.id\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\t//fillColor: \"#FF3366\",\n\t});\n\n\trange.then(result => {\n\t\tlet templateData = {\n\t\t\tt: \"rect\",\n\t\t\tuser: game.user._id,\n\t\t\tdistance: 7.5,\n\t\t\tdirection: 45,\n\t\t\tx: 0,\n\t\t\ty: 0,\n\t\t\tfillColor: game.user.color,\n\t\t\tflags: {\n\t\t\t\tDAESRD: {\n\t\t\t\t\tMistyStep: {\n\t\t\t\t\t\tActorId: tactor.id\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t};\n\n\n\n\t\tHooks.once(\"createMeasuredTemplate\", deleteTemplatesAndMove);\n\n\t\tlet template = new game.dnd5e.canvas.AbilityTemplate(templateData);\n\t\ttemplate.actorSheet = tactor.sheet;\n\t\ttemplate.drawPreview();\n\n\t\tasync function deleteTemplatesAndMove(scene, template) {\n\n\t\t\tlet removeTemplates = canvas.templates.placeables.filter(i => i.data.flags.DAESRD?.MistyStep?.ActorId === tactor.id);\n\n\n\t\t\ttok = target\n\t\t\tif (tok != undefined) {\n\n\t\t\t\tray = new Ray(tok.center, { x: template.x + canvas.grid.size / 2, y: template.y + canvas.grid.size / 2 });\n\t\t\t\t// Determines the angle\n\t\t\t\tanDeg = -(ray.angle * 57.3) - 90;\n\t\t\t\t//console.error(anDeg);\n\n\n\n\t\t\t\tconst data = {\n\t\t\t\t\tfile: anFile,\n\t\t\t\t\tposition: tok.center,\n\t\t\t\t\tanchor: {\n\t\t\t\t\t\tx: .5,\n\t\t\t\t\t\ty: .85\n\t\t\t\t\t},\n\t\t\t\t\tangle: anDeg,\n\t\t\t\t\tspeed: 0,\n\t\t\t\t\tscale: {\n\t\t\t\t\t\tx: .6,\n\t\t\t\t\t\ty: .6\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\t//console.error(\"data 1\");\n\t\t\t\tcanvas.fxmaster.playVideo(data);\n\t\t\t\tgame.socket.emit('module.fxmaster', data);\n\n\t\t\t}\n\n\n\n\n\n\t\t\ttok.update({ \"hidden\": !tok.data.hidden })\n\t\t\tawait target.update({ x: template.x, y: template.y })\n\t\t\tawait wait(700);\n\n\n\t\t\t//console.error(template.x);\n\t\t\t//console.error(template.y);\n\n\t\t\tif (tok != undefined) {\n\n\t\t\t\tanDeg = -(ray.angle * 57.3) - 90;\n\t\t\t\t//console.error(anDeg);\n\n\n\t\t\t\tconst data2 = {\n\t\t\t\t\tfile: anFile,\n\t\t\t\t\tposition: {\n\t\t\t\t\t\tx: template.x + canvas.grid.size / 2,\n\t\t\t\t\t\ty: template.y + canvas.grid.size / 2\n\t\t\t\t\t},\n\t\t\t\t\tanchor: {\n\t\t\t\t\t\tx: .5,\n\t\t\t\t\t\ty: .85\n\t\t\t\t\t},\n\t\t\t\t\tangle: anDeg,\n\t\t\t\t\tspeed: 0,\n\t\t\t\t\tscale: {\n\t\t\t\t\t\tx: -.6,\n\t\t\t\t\t\ty: -.6\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\t//console.error(\"data 2\");\n\t\t\t\tcanvas.fxmaster.playVideo(data2);\n\t\t\t\tgame.socket.emit('module.fxmaster', data2);\n\n\t\t\t}\n\t\t\t\n\t\t\tawait canvas.templates.deleteMany([removeTemplates[0].id, removeTemplates[1].id]);\n\t\t\tawait tactor.deleteEmbeddedEntity(\"ActiveEffect\", lastArg.effectId);\n\t\t\tawait wait(300);\n\t\t\ttok.update({ \"hidden\": !tok.data.hidden })\n\t\t};\n\t});\n\n}",
+          "author": "evQF5Awg3RukIKJQ"
+        },
+        "options": {},
+        "apps": {},
+        "compendium": null
+      }
+    },
+    "dae": {
+      "activeEquipped": false,
+      "alwaysActive": false
+    },
+    "midi-qol": {
+      "onUseMacroName": ""
+    },
+    "core": {
+      "sourceId": "Compendium.Dynamic-Effects-SRD.DAE SRD Spells.OJlgbnpItuXPbu0a"
+    },
+    "autoanimations": {
+      "killAnim": true,
+      "override": false,
+      "animType": "t1",
+      "animName": "",
+      "color": "n1",
+      "explosion": false,
+      "explodeVariant": "ev1",
+      "explodeColor": "ec1",
+      "explodeRadius": "0",
+      "dtvar": "dt1",
+      "explodeLoop": "1"
+    },
+    "favtab": {
+      "isFavorite": false
+    },
+    "exportSource": {
+      "world": "workshop",
+      "system": "dnd5e",
+      "coreVersion": "0.7.9",
+      "systemVersion": "1.2.4"
+    }
+  },
+  "img": "https://assets.forge-vtt.com/bazaar/systems/dnd5e/assets/icons/spells/wind-grasp-air-1.jpg",
+  "effects": [
+    {
+      "_id": "co3tPOrzgA6gTwI9",
+      "flags": {
+        "dae": {
+          "stackable": false,
+          "specialDuration": "None",
+          "macroRepeat": "none",
+          "transfer": false
+        }
+      },
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "value": "@target",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "seconds": null,
+        "rounds": null,
+        "turns": 1,
+        "startRound": null,
+        "startTurn": null
+      },
+      "icon": "systems/dnd5e/icons/spells/wind-grasp-air-1.jpg",
+      "label": "Misty Step",
+      "origin": "Actor.ENy7kwhecamly7N6.OwnedItem.OJlgbnpItuXPbu0a",
+      "tint": "",
+      "transfer": false
+    }
+  ],
+  "_id": "TXx2jShlQCC50b9f"
+}

@@ -1,0 +1,184 @@
+{
+  "name": "Hex",
+  "type": "spell",
+  "data": {
+    "description": {
+      "value": "<div  class=\"rd__b  rd__b--3\"><p>You place a curse on a creature that you can see within range. Until the spell ends, you deal an extra [[/r 1d6]] necrotic damage to the target whenever you hit it with an attack. Also, choose one ability when you cast the spell. The target has disadvantage on ability checks made with the chosen ability.</p><div class=\"rd__spc-inline-post\"></div><p>If the target drops to 0 hit points before this spell ends, you can use a bonus action on a subsequent turn of yours to curse a new creature.</p><p>A <a href=\"https://5e.tools/spells.html#remove%20curse_phb\"  onmouseover=\"Renderer.hover.pHandleLinkMouseOver(event, this, 'spells.html', 'PHB', 'remove%20curse_phb', null)\" onmouseleave=\"Renderer.hover.handleLinkMouseLeave(event, this)\" onmousemove=\"Renderer.hover.handleLinkMouseMove(event, this)\"  ontouchstart=\"Renderer.hover.handleTouchStart(event, this)\" >remove curse</a> cast on the target ends this spell early.</p></div><div  class=\"rd__b  rd__b--3\"><div  class=\"rd__b  rd__b--3\"><span class=\"rd__h rd__h--3\" data-title-index=\"1\" > <span class=\"entry-title-inner\">At Higher Levels.</span></span> <p>When you cast this spell using a spell slot of 3rd or 4th level, you can maintain your concentration on the spell for up to 8 hours. When you use a spell slot of 5th level or higher, you can maintain your concentration on the spell for up to 24 hours.</p><div class=\"rd__spc-inline-post\"></div></div><div class=\"rd__spc-inline-post\"></div></div>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "",
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "hour"
+    },
+    "target": {
+      "value": 1,
+      "width": null,
+      "units": "",
+      "type": "creature"
+    },
+    "range": {
+      "value": 90,
+      "long": 90,
+      "units": "ft"
+    },
+    "uses": {
+      "value": 0,
+      "max": 0,
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "util",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": null,
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "1d6",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 1,
+    "school": "enc",
+    "components": {
+      "value": "",
+      "vocal": true,
+      "somatic": true,
+      "material": true,
+      "ritual": false,
+      "concentration": true
+    },
+    "materials": {
+      "value": "the petrified eye of a newt",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "pact",
+      "prepared": true
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "sort": 7700000,
+  "flags": {
+    "midi-qol": {
+      "onUseMacroName": "ItemMacro, HexEffect"
+    },
+    "favtab": {
+      "isFavorite": true
+    },
+    "core": {
+      "sourceId": "Item.M5yUGg8sDNq0L2OK"
+    },
+    "itemacro": {
+      "macro": {
+        "_data": {
+          "name": "Hex",
+          "type": "script",
+          "scope": "global",
+          "command": "if (args[0].tag === \"OnUse\") {\n    // Sample Hunters mark\n    if (args[0].hitTargets.length === 0) return;\n    let target = args[0].hitTargets[0]._id;\n    let actorId = args[0].actor._id; // actor who cast the spell\n    actor = game.actors.get(actorId);\n    if (!actor || !target) {\n      console.error(\"Hex: no token/target selected\");\n      return;\n    }\n    \n    // create an active effect, \n    //  one change showing the hunter's mark icon on the caster\n    //  the second setting the flag for the macro to be called when damaging an opponent\n    const effectData = {\n      changes: [\n        {key: \"flags.midi-qol.huntersMark\", mode: 5, value: target, priority: 20}, // who is marked\n        {key: \"flags.dnd5e.DamageBonusMacro\", mode: 5, value: `ItemMacro.${args[0].item.name}`, priority: 20}, // macro to apply the damage\n        {key: \"flags.midi-qol.concentration-data.targets\", mode: 2, value: {\"actorId\":  actorId, \"tokenId\": args[0].tokenId}, priority: 20}\n      ],\n      origin: args[0].uuid, //flag the effect as associated to the spell being cast\n      disabled: false,\n      duration: args[0].item.effects[0].duration,\n      label: args[0].item.name\n    }\n    await actor.createEmbeddedEntity(\"ActiveEffect\", effectData);\n} else if (args[0].tag === \"DamageBonus\") {\n    if (args[0].hitTargets.length === 0) return;\n    let targetId = args[0].hitTargets[0]._id;\n    // only weapon attacks\n    if (![\"mwak\",\"rwak\",\"rsak\",\"msak\"].includes(args[0].item.data.actionType)) return {};\n    // only on the marked target\n    if (targetId !== getProperty(args[0].actor.flags, \"midi-qol.huntersMark\")) return {};\n    let damageType = \"Necrotic\";\n    return {damageRoll: `1d6[${damageType}]`, flavor: \"Hex Damage\"}\n}",
+          "author": "evQF5Awg3RukIKJQ"
+        },
+        "data": {
+          "name": "Hex",
+          "type": "script",
+          "scope": "global",
+          "command": "if (args[0].tag === \"OnUse\") {\n    // Sample Hunters mark\n    if (args[0].hitTargets.length === 0) return;\n    let target = args[0].hitTargets[0]._id;\n    let actorId = args[0].actor._id; // actor who cast the spell\n    actor = game.actors.get(actorId);\n    if (!actor || !target) {\n      console.error(\"Hex: no token/target selected\");\n      return;\n    }\n    \n    // create an active effect, \n    //  one change showing the hunter's mark icon on the caster\n    //  the second setting the flag for the macro to be called when damaging an opponent\n    const effectData = {\n      changes: [\n        {key: \"flags.midi-qol.huntersMark\", mode: 5, value: target, priority: 20}, // who is marked\n        {key: \"flags.dnd5e.DamageBonusMacro\", mode: 5, value: `ItemMacro.${args[0].item.name}`, priority: 20}, // macro to apply the damage\n        {key: \"flags.midi-qol.concentration-data.targets\", mode: 2, value: {\"actorId\":  actorId, \"tokenId\": args[0].tokenId}, priority: 20}\n      ],\n      origin: args[0].uuid, //flag the effect as associated to the spell being cast\n      disabled: false,\n      duration: args[0].item.effects[0].duration,\n      label: args[0].item.name\n    }\n    await actor.createEmbeddedEntity(\"ActiveEffect\", effectData);\n} else if (args[0].tag === \"DamageBonus\") {\n    if (args[0].hitTargets.length === 0) return;\n    let targetId = args[0].hitTargets[0]._id;\n    // only weapon attacks\n    if (![\"mwak\",\"rwak\",\"rsak\",\"msak\"].includes(args[0].item.data.actionType)) return {};\n    // only on the marked target\n    if (targetId !== getProperty(args[0].actor.flags, \"midi-qol.huntersMark\")) return {};\n    let damageType = \"Necrotic\";\n    return {damageRoll: `1d6[${damageType}]`, flavor: \"Hex Damage\"}\n}",
+          "author": "evQF5Awg3RukIKJQ"
+        },
+        "options": {},
+        "apps": {},
+        "compendium": null
+      }
+    },
+    "autoanimations": {
+      "killAnim": false,
+      "override": false,
+      "animType": "t1",
+      "animName": "",
+      "color": "n1",
+      "dtvar": "dt1",
+      "explosion": false,
+      "explodeVariant": "ev1",
+      "explodeColor": "ec1",
+      "explodeRadius": "0",
+      "explodeLoop": "1"
+    },
+    "exportSource": {
+      "world": "workshop",
+      "system": "dnd5e",
+      "coreVersion": "0.7.9",
+      "systemVersion": "1.2.4"
+    }
+  },
+  "img": "https://assets.forge-vtt.com/5feddd36646aec218dc6e6f9/dragupload/uploaded/WoW%20Icon%20Pack/Spells/DemonicEmpathy.png",
+  "effects": [
+    {
+      "_id": "sHj8NgYaGf37m3G4",
+      "flags": {
+        "dae": {
+          "stackable": false,
+          "macroRepeat": "none",
+          "transfer": false
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "ignoreSelf": false,
+          "hidden": false,
+          "height": false,
+          "alignment": "",
+          "type": "",
+          "aura": "None",
+          "radius": null,
+          "save": "",
+          "savedc": null,
+          "hostile": false,
+          "onlyOnce": false,
+          "time": "None"
+        }
+      },
+      "changes": [
+        {
+          "key": "macro.tokenMagic",
+          "value": "Hexification",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "seconds": 3600,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "icon": "https://assets.forge-vtt.com/5feddd36646aec218dc6e6f9/dragupload/uploaded/WoW%20Icon%20Pack/Spells/DemonicEmpathy.png",
+      "label": "Hex",
+      "origin": "Actor.6b4I8QmPBk4PTpdQ.OwnedItem.vpai7PNE6XRgnv49",
+      "tint": "",
+      "transfer": false
+    }
+  ],
+  "_id": "DyuB55bYocVKR0KR"
+}

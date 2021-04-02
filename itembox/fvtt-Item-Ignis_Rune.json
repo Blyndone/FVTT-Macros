@@ -1,0 +1,215 @@
+{
+  "name": "Ignis Rune",
+  "type": "weapon",
+  "data": {
+    "description": {
+      "value": "<p>In addition, when you hit a creature with an attack using a weapon, you can invoke the rune to summon fiery shackles: the target takes an extra [[/r 2d6]] fire damage, and it must succeed on a Strength saving throw or be&nbsp;<a href=\"https://5e.tools/conditionsdiseases.html#restrained_phb\">restrained</a>&nbsp;for 1 minute. While&nbsp;<a href=\"https://5e.tools/conditionsdiseases.html#restrained_phb\">restrained</a> by the shackles, the target takes [[/r 2d6]] fire damage at the start of each of its turns. The target can repeat the saving throw at the end of each of its turns, banishing the shackles on a success. Once you invoke this rune, you can't do so again until you finish a short or long rest.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "",
+    "quantity": 1,
+    "weight": 0,
+    "price": 0,
+    "attuned": false,
+    "attunement": 0,
+    "equipped": true,
+    "rarity": "",
+    "identified": true,
+    "activation": {
+      "type": "special",
+      "cost": 0,
+      "condition": "You hit a creature with an attack"
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "creature"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "any"
+    },
+    "uses": {
+      "value": 1,
+      "max": 1,
+      "per": "sr"
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "con",
+    "actionType": "other",
+    "attackBonus": 0,
+    "chatFlavor": "In addition, when you hit a creature with an attack using a weapon, you can invoke the rune to summon fiery shackles: the target takes an extra [[/r 2d6]] fire damage, and it must succeed on a Strength saving throw or be restrained for 1 minute. While restrained by the shackles, the target takes [[/r 2d6]] fire damage at the start of each of its turns. The target can repeat the saving throw at the end of each of its turns, banishing the shackles on a success. Once you invoke this rune, you can't do so again until you finish a short or long rest.",
+    "critical": null,
+    "damage": {
+      "parts": [
+        [
+          "2d6",
+          "fire"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "str",
+      "dc": 14,
+      "scaling": "con"
+    },
+    "armor": {
+      "value": 10
+    },
+    "hp": {
+      "value": 0,
+      "max": 0,
+      "dt": null,
+      "conditions": ""
+    },
+    "weaponType": "martialM",
+    "properties": {
+      "ada": false,
+      "amm": false,
+      "fin": false,
+      "fir": false,
+      "foc": false,
+      "hvy": false,
+      "lgt": false,
+      "lod": false,
+      "mgc": false,
+      "rch": false,
+      "rel": false,
+      "ret": false,
+      "sil": false,
+      "spc": false,
+      "thr": false,
+      "two": false,
+      "ver": false,
+      "nodam": false,
+      "fulldam": true,
+      "halfdam": false
+    },
+    "proficient": true
+  },
+  "sort": 1200000,
+  "flags": {
+    "midi-qol": {
+      "onUseMacroName": ""
+    },
+    "favtab": {
+      "isFavorite": false
+    },
+    "core": {
+      "sourceId": "Item.54sl0FdQdFwMvotv"
+    },
+    "autoanimations": {
+      "killAnim": false,
+      "override": true,
+      "animType": "t2",
+      "animName": "Greatsword",
+      "color": "b1",
+      "explosion": false,
+      "explodeVariant": "ev1",
+      "explodeColor": "ec1",
+      "explodeRadius": "0",
+      "dtvar": "dt1",
+      "explodeLoop": "1"
+    },
+    "itemacro": {
+      "macro": {
+        "_data": {
+          "name": "Ignis Rune",
+          "type": "script",
+          "scope": "global",
+          "command": "//DAE Macro Execute, Effect Value = \"Macro Name\" @target @attributes.spelldc\n\nconst lastArg = args[args.length - 1];\nlet tactor;\nlet actorCast = args[3].actorId;\nactor = game.actors.get(actorCast);\nif (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;\nelse tactor = game.actors.get(lastArg.actorId);\nconst target = canvas.tokens.get(lastArg.tokenId)\n\nconst DAEItem = lastArg.efData.flags.dae.itemData\nconst saveData = DAEItem.data.save\n\nif (args[0] === \"on\") {\n    game.cub.addCondition([\"Restrained\"], target);\n    ChatMessage.create({ content: `Ignis Rune is applied to ${tactor.name}` })\n\n}\nif (args[0] === \"off\") {\n\n\n    const hookId = Hooks.once(\"preUpdateCombat\", (combat, changed, options, userId) => {\n        if (!(\"turn\" in changed)) return;\n\n        if (combat.combatant.tokenId === args[2]) {\n            game.cub.removeCondition([\"Restrained\"], target);\n\n        }\n        game.cub.removeCondition([\"Concentrating\"], args[3].token);\n        ChatMessage.create({ content: `Ignis Rune is removed from ${tactor.name} ` });\n    });\n\n\n}\nif (args[0] === \"each\") {\n\n    let damageRoll = new Roll(\"2d6\").roll();\n    new MidiQOL.DamageOnlyWorkflow(tactor, target, damageRoll.total, \"fire\", [target], damageRoll, { flavor: `Ignis Rune Fire Damage` });\n    //tactor.update({ \"data.attributes.hp.temp\": mod });\n    ChatMessage.create({ content: \"Ignis Rune continues on \" + tactor.name })\n    const flavor = `${CONFIG.DND5E.abilities[saveData.ability]} DC${saveData.dc} ${DAEItem?.name || \"\"}`;\n    const saveDC = saveData.dc;\n    let saveRoll = (await tactor.rollAbilitySave(saveData.ability, { flavor })).total;\n\n    if (saveRoll >= saveDC) {\n        ChatMessage.create({ content: `Ignis Rune ends for ${tactor.name} at the end of their turn` })\n        tactor.deleteEmbeddedEntity(\"ActiveEffect\", lastArg.effectId);\n    }\n\n}",
+          "author": "evQF5Awg3RukIKJQ"
+        },
+        "data": {
+          "name": "Ignis Rune",
+          "type": "script",
+          "scope": "global",
+          "command": "//DAE Macro Execute, Effect Value = \"Macro Name\" @target @attributes.spelldc\n\nconst lastArg = args[args.length - 1];\nlet tactor;\nlet actorCast = args[3].actorId;\nactor = game.actors.get(actorCast);\nif (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;\nelse tactor = game.actors.get(lastArg.actorId);\nconst target = canvas.tokens.get(lastArg.tokenId)\n\nconst DAEItem = lastArg.efData.flags.dae.itemData\nconst saveData = DAEItem.data.save\n\nif (args[0] === \"on\") {\n    game.cub.addCondition([\"Restrained\"], target);\n    ChatMessage.create({ content: `Ignis Rune is applied to ${tactor.name}` })\n\n}\nif (args[0] === \"off\") {\n\n\n    const hookId = Hooks.once(\"preUpdateCombat\", (combat, changed, options, userId) => {\n        if (!(\"turn\" in changed)) return;\n\n        if (combat.combatant.tokenId === args[2]) {\n            game.cub.removeCondition([\"Restrained\"], target);\n\n        }\n        game.cub.removeCondition([\"Concentrating\"], args[3].token);\n        ChatMessage.create({ content: `Ignis Rune is removed from ${tactor.name} ` });\n    });\n\n\n}\nif (args[0] === \"each\") {\n\n    let damageRoll = new Roll(\"2d6\").roll();\n    new MidiQOL.DamageOnlyWorkflow(tactor, target, damageRoll.total, \"fire\", [target], damageRoll, { flavor: `Ignis Rune Fire Damage` });\n    //tactor.update({ \"data.attributes.hp.temp\": mod });\n    ChatMessage.create({ content: \"Ignis Rune continues on \" + tactor.name })\n    const flavor = `${CONFIG.DND5E.abilities[saveData.ability]} DC${saveData.dc} ${DAEItem?.name || \"\"}`;\n    const saveDC = saveData.dc;\n    let saveRoll = (await tactor.rollAbilitySave(saveData.ability, { flavor })).total;\n\n    if (saveRoll >= saveDC) {\n        ChatMessage.create({ content: `Ignis Rune ends for ${tactor.name} at the end of their turn` })\n        tactor.deleteEmbeddedEntity(\"ActiveEffect\", lastArg.effectId);\n    }\n\n}",
+          "author": "evQF5Awg3RukIKJQ"
+        },
+        "options": {},
+        "apps": {},
+        "compendium": null
+      }
+    },
+    "exportSource": {
+      "world": "workshop",
+      "system": "dnd5e",
+      "coreVersion": "0.7.9",
+      "systemVersion": "1.2.4"
+    }
+  },
+  "img": "https://assets.forge-vtt.com/5feddd36646aec218dc6e6f9/dragupload/uploaded/PC/spell_nature_slow.jpg",
+  "effects": [
+    {
+      "_id": "GtOwnQxwLwRao9vI",
+      "flags": {
+        "dae": {
+          "stackable": false,
+          "specialDuration": [
+            "isSaveSuccess"
+          ],
+          "macroRepeat": "startEveryTurn",
+          "transfer": false
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "ignoreSelf": false,
+          "hidden": false,
+          "height": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "save": "",
+          "savedc": null,
+          "hostile": false,
+          "onlyOnce": false,
+          "time": "None"
+        }
+      },
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "value": "@item @target",
+          "mode": 0,
+          "priority": 20
+        },
+        {
+          "key": "macro.tokenMagic",
+          "value": "fire-aura",
+          "mode": 0,
+          "priority": 20
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "seconds": 60,
+        "rounds": null,
+        "turns": null,
+        "startRound": null,
+        "startTurn": null
+      },
+      "icon": "https://assets.forge-vtt.com/5feddd36646aec218dc6e6f9/dragupload/uploaded/PC/spell_nature_slow.jpg",
+      "label": "Flame Shackles",
+      "origin": "Actor.K7rgGjJQdPx63OIh.OwnedItem.vqFrWtX6aDV7AObF",
+      "tint": "",
+      "transfer": false
+    }
+  ],
+  "_id": "K1LKRSXIugm47BBW"
+}
