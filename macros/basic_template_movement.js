@@ -15,7 +15,7 @@ if (args[0] === "on") {
 		user: game.user._id,
 		x: target.x + canvas.grid.size / 2 * tactor.data.token.width,
 		y: target.y + canvas.grid.size / 2 * tactor.data.token.height,
-fillColor: game.user.color,
+		fillColor: game.user.color,
 		direction: 0,
 		distance: myRange,
 
@@ -27,15 +27,15 @@ fillColor: game.user.color,
 				}
 			}
 		}
-		
+
 	});
 
 	range.then(result => {
-	
+
 		let templateData = {
 			t: "rect",
 			user: game.user._id,
-			distance: 7.5*tactor.data.token.width,
+			distance: 7.5 * tactor.data.token.width,
 			direction: 45,
 			x: 0,
 			y: 0,
@@ -62,11 +62,14 @@ fillColor: game.user.color,
 			let removeTemplates = canvas.templates.placeables.filter(i => i.data.flags.SKT?.Move?.ActorId === tactor.id);
 
 
-			await target.update({ x: template.x, y: template.y })
-					
+			await target.update({
+				x: template.x,
+				y: template.y
+			})
+
 			await canvas.templates.deleteMany([removeTemplates[0].id, removeTemplates[1].id]);
 			await tactor.deleteEmbeddedEntity("ActiveEffect", lastArg.effectId);
-			
+
 
 		};
 	});

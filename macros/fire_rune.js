@@ -13,7 +13,9 @@ const saveData = DAEItem.data.save
 
 if (args[0] === "on") {
     game.cub.addCondition(["Restrained"], target);
-    ChatMessage.create({ content: `Ignis Rune is applied to ${tactor.name}` })
+    ChatMessage.create({
+        content: `Ignis Rune is applied to ${tactor.name}`
+    })
 
 }
 if (args[0] === "off") {
@@ -27,7 +29,9 @@ if (args[0] === "off") {
 
         }
         game.cub.removeCondition(["Concentrating"], args[3].token);
-        ChatMessage.create({ content: `Ignis Rune is removed from ${tactor.name} ` });
+        ChatMessage.create({
+            content: `Ignis Rune is removed from ${tactor.name} `
+        });
     });
 
 
@@ -35,15 +39,23 @@ if (args[0] === "off") {
 if (args[0] === "each") {
 
     let damageRoll = new Roll("2d6").roll();
-    new MidiQOL.DamageOnlyWorkflow(tactor, target, damageRoll.total, "fire", [target], damageRoll, { flavor: `Ignis Rune Fire Damage` });
+    new MidiQOL.DamageOnlyWorkflow(tactor, target, damageRoll.total, "fire", [target], damageRoll, {
+        flavor: `Ignis Rune Fire Damage`
+    });
     //tactor.update({ "data.attributes.hp.temp": mod });
-    ChatMessage.create({ content: "Ignis Rune continues on " + tactor.name })
+    ChatMessage.create({
+        content: "Ignis Rune continues on " + tactor.name
+    })
     const flavor = `${CONFIG.DND5E.abilities[saveData.ability]} DC${saveData.dc} ${DAEItem?.name || ""}`;
     const saveDC = saveData.dc;
-    let saveRoll = (await tactor.rollAbilitySave(saveData.ability, { flavor })).total;
+    let saveRoll = (await tactor.rollAbilitySave(saveData.ability, {
+        flavor
+    })).total;
 
     if (saveRoll >= saveDC) {
-        ChatMessage.create({ content: `Ignis Rune ends for ${tactor.name} at the end of their turn` })
+        ChatMessage.create({
+            content: `Ignis Rune ends for ${tactor.name} at the end of their turn`
+        })
         tactor.deleteEmbeddedEntity("ActiveEffect", lastArg.effectId);
     }
 

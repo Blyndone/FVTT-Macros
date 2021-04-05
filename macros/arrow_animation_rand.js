@@ -20,85 +20,85 @@ if (!canvas.fxmaster) ui.notifications.error("This macro depends on the FXMaster
 const sleepNow = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 async function Cast() {
-var myStringArray = Array.from(game.user.targets)[0];
-var arrayLength = game.user.targets.size;
-for (var i = 0; i < arrayLength; i++) {
+   var myStringArray = Array.from(game.user.targets)[0];
+   var arrayLength = game.user.targets.size;
+   for (var i = 0; i < arrayLength; i++) {
 
-let mainTarget = Array.from(game.user.targets)[i];
-let tarScale = ((mainTarget.data.width + mainTarget.data.height)/2);
-let myToken = canvas.tokens.controlled [0];
-if (myToken == null){myToken = canvas.tokens.ownedTokens[0];} 
+      let mainTarget = Array.from(game.user.targets)[i];
+      let tarScale = ((mainTarget.data.width + mainTarget.data.height) / 2);
+      let myToken = canvas.tokens.controlled[0];
+      if (myToken == null) {
+         myToken = canvas.tokens.ownedTokens[0];
+      }
 
-let ray = new Ray(myToken.center, mainTarget.center);
-let anDeg = -(ray.angle * 57.3);
-let anDist = ray.distance;
-anDeg += (Math.random()-.5)*3*tarScale;
-anDist+= (Math.random()-.5)*50*tarScale;
+      let ray = new Ray(myToken.center, mainTarget.center);
+      let anDeg = -(ray.angle * 57.3);
+      let anDist = ray.distance;
+      anDeg += (Math.random() - .5) * 3 * tarScale;
+      anDist += (Math.random() - .5) * 50 * tarScale;
 
 
 
-let anFile = anFile30;
-let anFileSize = 600;
-let anchorX = 0.125;
-switch(true){
- case (anDist<=1200):
-    anFileSize = 1200;
-    anFile = anFile30;
-    anchorX = 0.125;
-    break;
- case (anDist>2400):
-    anFileSize = 3600;
-    anFile = anFile90;
-    anchorX = 0.05;
-    break;
- default:
-    anFileSize = 2400;
-    anFile = anFile60;
-    anchorX = 0.071;
-    break;
+      let anFile = anFile30;
+      let anFileSize = 600;
+      let anchorX = 0.125;
+      switch (true) {
+         case (anDist <= 1200):
+            anFileSize = 1200;
+            anFile = anFile30;
+            anchorX = 0.125;
+            break;
+         case (anDist > 2400):
+            anFileSize = 3600;
+            anFile = anFile90;
+            anchorX = 0.05;
+            break;
+         default:
+            anFileSize = 2400;
+            anFile = anFile60;
+            anchorX = 0.071;
+            break;
+      }
+
+      let anScale = anDist / anFileSize;
+      let anScaleY = anDist <= 600 ? 0.6 : anScale;
+
+      let spellAnim = {
+         file: anFile,
+         position: myToken.center,
+         anchor: {
+            x: anchorX,
+            y: 0.5
+         },
+         angle: anDeg,
+         scale: {
+            x: anScale,
+            y: anScaleY
+         }
+      };
+
+      let spellAnim2 = {
+         file: anFileXpl,
+         position: mainTarget.center,
+         anchor: {
+            x: 0.5,
+            y: 0.5
+         },
+         angle: 0,
+         scale: {
+            x: tarScale,
+            y: tarScale
+         }
+      };
+
+      canvas.fxmaster.playVideo(spellAnim);
+      await sleepNow(150);
+
+
+
+      //canvas.fxmaster.playVideo(spellAnim2);
+      //await sleepNow(250);
+      game.socket.emit('module.fxmaster', spellAnim);
+   }
 }
-
-let anScale = anDist / anFileSize;
-let anScaleY = anDist <= 600 ? 0.6  : anScale;
-
-let spellAnim = 
-                    {
-                     file: anFile,
-                      position: myToken.center,
-                      anchor: {
-                       x: anchorX,
-                       y: 0.5
-                      },
-                      angle: anDeg,
-                      scale: {
-                       x: anScale,
-                       y: anScaleY
-                      }
-                    }; 
-
-let spellAnim2 = 
-                    {
-                     file: anFileXpl,
-                      position: mainTarget.center,
-                      anchor: {
-                       x: 0.5,
-                       y: 0.5
-                      },
-                      angle: 0,
-                      scale: {
-                       x: tarScale,
-                       y: tarScale
-                      }
-                    }; 
-
-canvas.fxmaster.playVideo(spellAnim);
-await sleepNow(150);
-
-
-
-//canvas.fxmaster.playVideo(spellAnim2);
-//await sleepNow(250);
-game.socket.emit('module.fxmaster', spellAnim);
-}
-}
-Cast ()
+Cast()
