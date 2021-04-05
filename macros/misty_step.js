@@ -78,6 +78,7 @@ const wait = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
 
 if (args[0] === "on") {
+	
 	let range = MeasuredTemplate.create({
 		t: "circle",
 		user: game.user._id,
